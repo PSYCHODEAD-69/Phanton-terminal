@@ -1,55 +1,46 @@
 #!/usr/bin/env bash
 #
-# Phantom Terminal - Advanced Bash Startup Animation v3.6.0
-# Cinematic startup animation with multiple themes, effects, and customization.
-# Features: Matrix/Binary rain, gradients, themes.
-#
+# Phantom Terminal - Linux Fixed v3.6.1
+# Fully working on Linux (Ubuntu/Debian/Arch/Fedora)
 # Creator: @unknownlll2829 (Telegram)
 # GitHub: https://github.com/Unknown-2829/Phanton-terminal
-# Version: 3.6.0
+# Linux Fix: Claude (Anthropic)
 #
 
-# ═══════════════════════════════════════════════════════════════════════════
-# VERSION & PATHS
-# ═══════════════════════════════════════════════════════════════════════════
-
-SCRIPT_VERSION="3.6.0"
+SCRIPT_VERSION="3.6.1"
 REPO_OWNER="Unknown-2829"
 REPO_NAME="Phanton-terminal"
 CONFIG_DIR="$HOME/.phantom-terminal"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 CACHE_FILE="$CONFIG_DIR/cache.json"
 
-# Create config directory if it doesn't exist
 mkdir -p "$CONFIG_DIR"
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # PLATFORM DETECTION
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
 detect_platform() {
-    if [[ "$OSTYPE" == "linux-android"* ]] || [[ -n "$TERMUX_VERSION" ]]; then
+    if [[ "$OSTYPE" == "linux-android"* ]] || [[ -n "${TERMUX_VERSION:-}" ]]; then
         echo "termux"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "macos"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "linux"* ]]; then
         echo "linux"
     else
-        echo "unknown"
+        echo "linux"  # Default to linux instead of unknown
     fi
 }
 
 PLATFORM=$(detect_platform)
 
-# ═══════════════════════════════════════════════════════════════════════════
-# COLORS (ANSI Escape Codes)
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
+# COLORS
+# ═══════════════════════════════════════════════════
 
 ESC=$'\e'
 RESET="${ESC}[0m"
 BOLD="${ESC}[1m"
-
-# Theme colors
 NEON_GREEN="${ESC}[38;5;118m"
 NEON_PURPLE="${ESC}[38;5;129m"
 NEON_CYAN="${ESC}[38;5;87m"
@@ -65,72 +56,58 @@ SHADOW="${ESC}[38;5;235m"
 YELLOW="${ESC}[38;5;226m"
 ORANGE="${ESC}[38;5;208m"
 
-# ═══════════════════════════════════════════════════════════════════════════
-# SYMBOLS
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
+# SYMBOLS - FIX: Better terminal detection for Linux
+# ═══════════════════════════════════════════════════
 
-if [[ "$PLATFORM" == "termux" ]] || [[ "$TERM" != *"xterm"* ]]; then
-    # ASCII fallback for better compatibility
-    SKULL="[X]"
-    SHIELD="[#]"
-    LOCK="[=]"
-    KEY="[-]"
-    HIGH_VOLTAGE="[!]"
-    BOMB="[O]"
-    SUCCESS="[+]"
-    FAILURE="[x]"
-    WARNING="[!]"
-    PROMPT=">"
-    BRANCH="~"
-    UPDATE="[U]"
-    CPU="[C]"
-    RAM="[R]"
-    HDD="[D]"
-    HLINE="="
-    VLINE="|"
-    TOP_LEFT="+"
-    TOP_RIGHT="+"
-    BOTTOM_LEFT="+"
-    BOTTOM_RIGHT="+"
-    T_LEFT="+"
-    T_RIGHT="+"
-    BLOCK="#"
-    BLOCK_EMPTY="-"
+_supports_unicode() {
+    local term_ok=false
+    local locale_ok=false
+    # Check TERM
+    case "$TERM" in
+        xterm*|rxvt*|screen*|tmux*|vte*|alacritty*|foot*|kitty*)
+            term_ok=true ;;
+    esac
+    # Check COLORTERM
+    [[ "$COLORTERM" == "truecolor" || "$COLORTERM" == "24bit" ]] && term_ok=true
+    # Check locale for UTF-8
+    local lc="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
+    [[ "$lc" == *UTF-8* || "$lc" == *utf8* ]] && locale_ok=true
+    # If either is good, support unicode
+    $term_ok || $locale_ok
+}
+
+if [[ "$PLATFORM" == "termux" ]]; then
+    USE_ASCII=true
+elif _supports_unicode; then
+    USE_ASCII=false
 else
-    # Unicode symbols for better terminals
-    SKULL="☠"
-    SHIELD="░"
-    LOCK="■"
-    KEY="●"
-    HIGH_VOLTAGE="⚡"
-    BOMB="◆"
-    SUCCESS="✔"
-    FAILURE="✘"
-    WARNING="⚠"
-    PROMPT="»"
-    BRANCH="→"
-    UPDATE="↻"
-    CPU="⚙"
-    RAM="☰"
-    HDD="■"
-    HLINE="═"
-    VLINE="║"
-    TOP_LEFT="╔"
-    TOP_RIGHT="╗"
-    BOTTOM_LEFT="╚"
-    BOTTOM_RIGHT="╝"
-    T_LEFT="╠"
-    T_RIGHT="╣"
-    BLOCK="█"
-    BLOCK_EMPTY="░"
+    USE_ASCII=true
 fi
 
-# ═══════════════════════════════════════════════════════════════════════════
-# CONFIGURATION MANAGEMENT
-# ═══════════════════════════════════════════════════════════════════════════
+if $USE_ASCII; then
+    SKULL="[X]"; SHIELD="[#]"; LOCK="[=]"; KEY="[-]"
+    HIGH_VOLTAGE="[!]"; BOMB="[O]"; SUCCESS="[+]"; FAILURE="[x]"
+    WARNING="[!]"; PROMPT=">"; BRANCH="~"; UPDATE="[U]"
+    CPU="[C]"; RAM="[R]"; HDD="[D]"
+    HLINE="="; VLINE="|"; TOP_LEFT="+"; TOP_RIGHT="+"
+    BOTTOM_LEFT="+"; BOTTOM_RIGHT="+"; T_LEFT="+"; T_RIGHT="+"
+    BLOCK="#"; BLOCK_EMPTY="-"
+else
+    SKULL="☠"; SHIELD="░"; LOCK="■"; KEY="●"
+    HIGH_VOLTAGE="⚡"; BOMB="◆"; SUCCESS="✔"; FAILURE="✘"
+    WARNING="⚠"; PROMPT="»"; BRANCH="→"; UPDATE="↻"
+    CPU="⚙"; RAM="☰"; HDD="■"
+    HLINE="═"; VLINE="║"; TOP_LEFT="╔"; TOP_RIGHT="╗"
+    BOTTOM_LEFT="╚"; BOTTOM_RIGHT="╝"; T_LEFT="╠"; T_RIGHT="╣"
+    BLOCK="█"; BLOCK_EMPTY="░"
+fi
+
+# ═══════════════════════════════════════════════════
+# CONFIG
+# ═══════════════════════════════════════════════════
 
 load_config() {
-    # Default configuration
     ANIMATION_ENABLED=true
     MATRIX_DURATION=2
     MATRIX_MODE="Letters"
@@ -145,22 +122,35 @@ load_config() {
     SILENT_UPDATE=true
     UPDATE_CHECK_DAYS=1
 
-    # Load from config file if exists
     if [[ -f "$CONFIG_FILE" ]]; then
-        if command -v jq &> /dev/null; then
-            ANIMATION_ENABLED=$(jq -r '.AnimationEnabled // true' "$CONFIG_FILE" 2>/dev/null)
-            MATRIX_DURATION=$(jq -r '.MatrixDuration // 2' "$CONFIG_FILE" 2>/dev/null)
-            MATRIX_MODE=$(jq -r '.MatrixMode // "Letters"' "$CONFIG_FILE" 2>/dev/null)
-            SECURITY_LOAD_STEPS=$(jq -r '.SecurityLoadSteps // 8' "$CONFIG_FILE" 2>/dev/null)
-            GLITCH_INTENSITY=$(jq -r '.GlitchIntensity // 3' "$CONFIG_FILE" 2>/dev/null)
-            SHOW_SYSTEM_INFO=$(jq -r '.ShowSystemInfo // true' "$CONFIG_FILE" 2>/dev/null)
-            SHOW_FULL_PATH=$(jq -r '.ShowFullPath // true' "$CONFIG_FILE" 2>/dev/null)
-            GRADIENT_TEXT=$(jq -r '.GradientText // true' "$CONFIG_FILE" 2>/dev/null)
-            SMART_SUGGESTIONS=$(jq -r '.SmartSuggestions // true' "$CONFIG_FILE" 2>/dev/null)
-            THEME=$(jq -r '.Theme // "Phantom"' "$CONFIG_FILE" 2>/dev/null)
-            AUTO_CHECK_UPDATES=$(jq -r '.AutoCheckUpdates // true' "$CONFIG_FILE" 2>/dev/null)
-            SILENT_UPDATE=$(jq -r '.SilentUpdate // true' "$CONFIG_FILE" 2>/dev/null)
-            UPDATE_CHECK_DAYS=$(jq -r '.UpdateCheckDays // 1' "$CONFIG_FILE" 2>/dev/null)
+        if command -v jq &>/dev/null; then
+            ANIMATION_ENABLED=$(jq -r '.AnimationEnabled // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            MATRIX_DURATION=$(jq -r '.MatrixDuration // 2' "$CONFIG_FILE" 2>/dev/null || echo 2)
+            MATRIX_MODE=$(jq -r '.MatrixMode // "Letters"' "$CONFIG_FILE" 2>/dev/null || echo "Letters")
+            SECURITY_LOAD_STEPS=$(jq -r '.SecurityLoadSteps // 8' "$CONFIG_FILE" 2>/dev/null || echo 8)
+            GLITCH_INTENSITY=$(jq -r '.GlitchIntensity // 3' "$CONFIG_FILE" 2>/dev/null || echo 3)
+            SHOW_SYSTEM_INFO=$(jq -r '.ShowSystemInfo // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            SHOW_FULL_PATH=$(jq -r '.ShowFullPath // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            GRADIENT_TEXT=$(jq -r '.GradientText // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            SMART_SUGGESTIONS=$(jq -r '.SmartSuggestions // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            THEME=$(jq -r '.Theme // "Phantom"' "$CONFIG_FILE" 2>/dev/null || echo "Phantom")
+            AUTO_CHECK_UPDATES=$(jq -r '.AutoCheckUpdates // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            SILENT_UPDATE=$(jq -r '.SilentUpdate // true' "$CONFIG_FILE" 2>/dev/null || echo true)
+            UPDATE_CHECK_DAYS=$(jq -r '.UpdateCheckDays // 1' "$CONFIG_FILE" 2>/dev/null || echo 1)
+        else
+            # FIX: jq-less config parsing using pure bash
+            _cfg_get() { grep -o "\"$1\"[[:space:]]*:[[:space:]]*[^,}]*" "$CONFIG_FILE" 2>/dev/null | sed 's/.*:[[:space:]]*//' | tr -d '"' | tr -d ' '; }
+            local v
+            v=$(_cfg_get AnimationEnabled);   [[ -n "$v" ]] && ANIMATION_ENABLED="$v"
+            v=$(_cfg_get MatrixDuration);      [[ -n "$v" ]] && MATRIX_DURATION="$v"
+            v=$(_cfg_get MatrixMode);          [[ -n "$v" ]] && MATRIX_MODE="$v"
+            v=$(_cfg_get SecurityLoadSteps);   [[ -n "$v" ]] && SECURITY_LOAD_STEPS="$v"
+            v=$(_cfg_get GlitchIntensity);     [[ -n "$v" ]] && GLITCH_INTENSITY="$v"
+            v=$(_cfg_get ShowSystemInfo);      [[ -n "$v" ]] && SHOW_SYSTEM_INFO="$v"
+            v=$(_cfg_get ShowFullPath);        [[ -n "$v" ]] && SHOW_FULL_PATH="$v"
+            v=$(_cfg_get GradientText);        [[ -n "$v" ]] && GRADIENT_TEXT="$v"
+            v=$(_cfg_get Theme);               [[ -n "$v" ]] && THEME="$v"
+            v=$(_cfg_get AutoCheckUpdates);    [[ -n "$v" ]] && AUTO_CHECK_UPDATES="$v"
         fi
     fi
 }
@@ -185,39 +175,36 @@ save_config() {
 EOF
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
-# CACHE MANAGEMENT
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
+# CACHE
+# ═══════════════════════════════════════════════════
 
 get_cache() {
-    if [[ -f "$CACHE_FILE" ]] && command -v jq &> /dev/null; then
-        LAST_UPDATE_CHECK=$(jq -r '.LastUpdateCheck // ""' "$CACHE_FILE" 2>/dev/null)
-        LATEST_VERSION=$(jq -r '.LatestVersion // ""' "$CACHE_FILE" 2>/dev/null)
-        UPDATE_AVAILABLE=$(jq -r '.UpdateAvailable // false' "$CACHE_FILE" 2>/dev/null)
-    else
-        LAST_UPDATE_CHECK=""
-        LATEST_VERSION=""
-        UPDATE_AVAILABLE=false
+    LAST_UPDATE_CHECK=""
+    LATEST_VERSION=""
+    UPDATE_AVAILABLE=false
+    if [[ -f "$CACHE_FILE" ]]; then
+        if command -v jq &>/dev/null; then
+            LAST_UPDATE_CHECK=$(jq -r '.LastUpdateCheck // ""' "$CACHE_FILE" 2>/dev/null || echo "")
+            LATEST_VERSION=$(jq -r '.LatestVersion // ""' "$CACHE_FILE" 2>/dev/null || echo "")
+            UPDATE_AVAILABLE=$(jq -r '.UpdateAvailable // false' "$CACHE_FILE" 2>/dev/null || echo false)
+        fi
     fi
 }
 
 save_cache() {
-    local last_check="${1:-}"
-    local latest_ver="${2:-}"
-    local update_avail="${3:-false}"
-
     cat > "$CACHE_FILE" <<EOF
 {
-  "LastUpdateCheck": "$last_check",
-  "LatestVersion": "$latest_ver",
-  "UpdateAvailable": $update_avail
+  "LastUpdateCheck": "$1",
+  "LatestVersion": "$2",
+  "UpdateAvailable": ${3:-false}
 }
 EOF
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # THEMES
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
 get_phantom_logo() {
     cat << 'EOF'
@@ -265,7 +252,7 @@ get_theme_colors() {
             SECONDARY="$NEON_CYAN"
             ACCENT="$HOT_PINK"
             GRADIENT_COLORS=("$NEON_PURPLE" "$NEON_CYAN" "$HOT_PINK")
-            MATRIX_CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$'
+            MATRIX_CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*'
             QUOTES=(
                 'In the shadows, we code...'
                 'Access denied. Until now.'
@@ -282,64 +269,45 @@ get_theme_colors() {
     esac
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # TERMINAL HELPERS
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
-hide_cursor() {
-    printf '\e[?25l'
-}
-
-show_cursor() {
-    printf '\e[?25h'
-}
-
-clear_screen() {
-    clear
-    printf '\e[H'
-}
+hide_cursor()   { printf '\e[?25l'; }
+show_cursor()   { printf '\e[?25h'; }
+clear_screen()  { clear; printf '\e[H'; }
 
 get_terminal_size() {
     TERM_WIDTH=$(tput cols 2>/dev/null || echo 80)
     TERM_HEIGHT=$(tput lines 2>/dev/null || echo 24)
-
-    # Detect small/mobile screens and adjust for Termux
     IS_SMALL_SCREEN=false
-    if [[ $TERM_WIDTH -lt 80 ]] || [[ "$PLATFORM" == "termux" ]]; then
-        IS_SMALL_SCREEN=true
-    fi
+    [[ $TERM_WIDTH -lt 80 || "$PLATFORM" == "termux" ]] && IS_SMALL_SCREEN=true
 }
 
-move_cursor() {
-    printf '\e[%d;%dH' "$1" "$2"
-}
+move_cursor() { printf '\e[%d;%dH' "$1" "$2"; }
 
 write_centered() {
-    local text="$1"
-    local color="${2:-$WHITE}"
+    local text="$1" color="${2:-$WHITE}"
     get_terminal_size
-    local clean_text=$(echo "$text" | sed 's/\x1b\[[0-9;]*m//g')
-    local padding=$(( (TERM_WIDTH - ${#clean_text}) / 2 ))
-    [[ $padding -lt 0 ]] && padding=0
-    printf "%${padding}s%b%s%b\n" "" "$color" "$text" "$RESET"
+    local clean=$(printf '%s' "$text" | sed 's/\x1b\[[0-9;]*m//g')
+    local pad=$(( (TERM_WIDTH - ${#clean}) / 2 ))
+    [[ $pad -lt 0 ]] && pad=0
+    printf "%${pad}s%b%s%b\n" "" "$color" "$text" "$RESET"
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # ANIMATIONS
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
 show_security_loading_bar() {
-    local description="$1"
-    local steps="${2:-8}"
-    local color="${3:-$PRIMARY}"
-
+    local desc="$1" steps="${2:-8}" color="${3:-$PRIMARY}"
     for ((i=1; i<=steps; i++)); do
         local filled=$(printf "%${i}s" | tr ' ' "$BLOCK")
-        local empty=$(printf "%$((steps - i))s" | tr ' ' "$BLOCK_EMPTY")
-        local percent=$((i * 100 / steps))
+        local empty=$(printf "%$((steps-i))s" | tr ' ' "$BLOCK_EMPTY")
+        local pct=$((i*100/steps))
         printf "\r  %b%s %b[%b%s%b%s] %b%3d%%%b" \
-            "$GRAY" "$description" "$DARK_GRAY" "$color" "$filled" \
-            "$DARK_GRAY" "$empty" "$WHITE" "$percent" "$RESET"
+            "$GRAY" "$desc" "$DARK_GRAY" "$color" "$filled" \
+            "$DARK_GRAY" "$empty" "$WHITE" "$pct" "$RESET"
         sleep 0.025
     done
     printf " %b%s%b\n" "$NEON_GREEN" "$SUCCESS" "$RESET"
@@ -350,58 +318,44 @@ show_multicolor_matrix() {
     clear_screen
     get_terminal_size
 
-    # Reduce duration on small screens/mobile for performance
-    if [[ "$IS_SMALL_SCREEN" == "true" ]]; then
-        duration=$((duration / 2))
-        [[ $duration -lt 1 ]] && duration=1
-    fi
+    [[ "$IS_SMALL_SCREEN" == "true" ]] && duration=$(( duration/2 < 1 ? 1 : duration/2 ))
 
-    # Get matrix chars based on mode
     local chars
-    if [[ "$MATRIX_MODE" == "Binary" ]]; then
-        chars="01"
-    else
-        chars="$MATRIX_CHARS"
-    fi
+    [[ "$MATRIX_MODE" == "Binary" ]] && chars="01" || chars="$MATRIX_CHARS"
 
-    # Color list
     local colors=("$PRIMARY" "$SECONDARY" "$NEON_CYAN" "$ELECTRIC_BLUE")
 
-    # Initialize drop positions - reduce on small screens
-    declare -a drops
+    declare -A drops
     local col_step=1
-    if [[ "$IS_SMALL_SCREEN" == "true" ]]; then
-        col_step=2  # Skip every other column on small screens
-    fi
+    [[ "$IS_SMALL_SCREEN" == "true" ]] && col_step=2
 
     for ((i=0; i<TERM_WIDTH; i+=col_step)); do
-        drops[$i]=$((RANDOM % TERM_HEIGHT))
+        drops[$i]=$(( RANDOM % TERM_HEIGHT ))
     done
 
-    local end_time=$((SECONDS + duration))
+    local end_time=$(( SECONDS + duration ))
     local sleep_time=0.012
-    [[ "$IS_SMALL_SCREEN" == "true" ]] && sleep_time=0.02  # Slower on mobile
+    [[ "$IS_SMALL_SCREEN" == "true" ]] && sleep_time=0.02
 
     while [[ $SECONDS -lt $end_time ]]; do
         for ((col=0; col<TERM_WIDTH; col+=col_step)); do
-            local char="${chars:$((RANDOM % ${#chars})):1}"
-            local color_idx=$((col % ${#colors[@]}))
-            local color="${colors[$color_idx]}"
-            local row=${drops[$col]}
+            local char="${chars:$(( RANDOM % ${#chars} )):1}"
+            local cidx=$(( col % ${#colors[@]} ))
+            local color="${colors[$cidx]}"
+            local row=${drops[$col]:-1}
 
             if [[ $row -ge 1 && $row -lt $TERM_HEIGHT ]]; then
                 move_cursor "$row" "$col"
                 printf "%b%s" "$color" "$char"
-
-                local lead_pos=$((row + 1))
-                if [[ $lead_pos -lt $TERM_HEIGHT ]]; then
-                    move_cursor "$lead_pos" "$col"
+                local lead=$(( row+1 ))
+                if [[ $lead -lt $TERM_HEIGHT ]]; then
+                    move_cursor "$lead" "$col"
                     printf "%b%s" "$WHITE" "$char"
                 fi
             fi
 
-            drops[$col]=$((row + 1))
-            if [[ ${drops[$col]} -ge $TERM_HEIGHT && $((RANDOM % 5)) -eq 0 ]]; then
+            drops[$col]=$(( row+1 ))
+            if [[ ${drops[$col]} -ge $TERM_HEIGHT && $(( RANDOM%5 )) -eq 0 ]]; then
                 drops[$col]=1
             fi
         done
@@ -413,69 +367,58 @@ show_multicolor_matrix() {
 show_core_ignition() {
     clear_screen
     get_terminal_size
-    local y_pos=$((TERM_HEIGHT / 2 - 3))
-
+    local y=$(( TERM_HEIGHT/2 - 3 ))
     local statuses=("[CORE_INIT]" "[ENCRYPTION_KEYS]" "[FIREWALL_MATRIX]" "[AUTH_BYPASS]" "[SYSTEM_ARMED]")
-
-    for status in "${statuses[@]}"; do
-        local padding=$(( (TERM_WIDTH - ${#status} - 4) / 2 ))
-        [[ $padding -lt 0 ]] && padding=0
-
-        move_cursor "$y_pos" 1
-        printf "%${padding}s%b%s %s" "" "$BLOOD_RED" "$HIGH_VOLTAGE" "$status"
+    for s in "${statuses[@]}"; do
+        local pad=$(( (TERM_WIDTH - ${#s} - 4) / 2 ))
+        [[ $pad -lt 0 ]] && pad=0
+        move_cursor "$y" 1
+        printf "%${pad}s%b%s %s" "" "$BLOOD_RED" "$HIGH_VOLTAGE" "$s"
         sleep 0.05
-
-        move_cursor "$y_pos" 1
-        printf "%${padding}s%b%s %s%b\n" "" "$PRIMARY" "$HIGH_VOLTAGE" "$status" "$RESET"
-        y_pos=$((y_pos + 1))
+        move_cursor "$y" 1
+        printf "%${pad}s%b%s %s%b\n" "" "$PRIMARY" "$HIGH_VOLTAGE" "$s" "$RESET"
+        y=$(( y+1 ))
         sleep 0.025
     done
     sleep 0.1
 }
 
 show_glitch_reveal() {
-    local art="$1"
-    local color="${2:-$PRIMARY}"
-
+    local art="$1" color="${2:-$PRIMARY}"
     clear_screen
     get_terminal_size
 
-    # Split logo into lines
     mapfile -t lines <<< "$art"
 
-    local max_width=0
-    for line in "${lines[@]}"; do
-        [[ ${#line} -gt $max_width ]] && max_width=${#line}
-    done
+    local max_w=0
+    for line in "${lines[@]}"; do [[ ${#line} -gt $max_w ]] && max_w=${#line}; done
 
-    local start_col=$(( (TERM_WIDTH - max_width) / 2 ))
-    [[ $start_col -lt 1 ]] && start_col=1
-    local start_row=$(( (TERM_HEIGHT - ${#lines[@]}) / 2 ))
-    [[ $start_row -lt 2 ]] && start_row=2
+    local sc=$(( (TERM_WIDTH - max_w) / 2 ))
+    [[ $sc -lt 1 ]] && sc=1
+    local sr=$(( (TERM_HEIGHT - ${#lines[@]}) / 2 ))
+    [[ $sr -lt 2 ]] && sr=2
 
     local glitch_chars='!@#$%_+-=:;,.?/'
 
-    # Glitch effect
     for ((g=0; g<GLITCH_INTENSITY; g++)); do
-        local row=$start_row
+        local row=$sr
         for line in "${lines[@]}"; do
-            move_cursor "$row" "$start_col"
+            move_cursor "$row" "$sc"
             local glitched=""
             for ((i=0; i<${#line}; i++)); do
-                local char="${line:$i:1}"
-                if [[ "$char" != " " && $((RANDOM % 10)) -lt 3 ]]; then
-                    glitched+="${glitch_chars:$((RANDOM % ${#glitch_chars})):1}"
+                local ch="${line:$i:1}"
+                if [[ "$ch" != " " && $(( RANDOM%10 )) -lt 3 ]]; then
+                    glitched+="${glitch_chars:$(( RANDOM % ${#glitch_chars} )):1}"
                 else
-                    glitched+="$char"
+                    glitched+="$ch"
                 fi
             done
             printf "%b%s%b" "$BRIGHT_RED" "$glitched" "$RESET"
-            row=$((row + 1))
+            row=$(( row+1 ))
         done
         sleep 0.035
     done
 
-    # Final reveal with gradient
     clear_screen
     echo ""
     write_gradient_logo "$art"
@@ -485,37 +428,29 @@ show_glitch_reveal() {
 write_gradient_logo() {
     local art="$1"
     mapfile -t lines <<< "$art"
-
     get_terminal_size
-    local max_width=0
+    local max_w=0
+    for line in "${lines[@]}"; do [[ ${#line} -gt $max_w ]] && max_w=${#line}; done
+    local sc=$(( (TERM_WIDTH - max_w) / 2 ))
+    [[ $sc -lt 0 ]] && sc=0
+    local n=0
     for line in "${lines[@]}"; do
-        [[ ${#line} -gt $max_width ]] && max_width=${#line}
-    done
-
-    local start_col=$(( (TERM_WIDTH - max_width) / 2 ))
-    [[ $start_col -lt 0 ]] && start_col=0
-
-    local line_num=0
-    for line in "${lines[@]}"; do
-        local color
+        local c
         if [[ "$GRADIENT_TEXT" == "true" ]]; then
-            local color_idx=$((line_num % ${#GRADIENT_COLORS[@]}))
-            color="${GRADIENT_COLORS[$color_idx]}"
+            c="${GRADIENT_COLORS[$(( n % ${#GRADIENT_COLORS[@]} ))]}"
         else
-            color="$PRIMARY"
+            c="$PRIMARY"
         fi
-        printf "%${start_col}s%b%s%b\n" "" "$color" "$line" "$RESET"
-        line_num=$((line_num + 1))
+        printf "%${sc}s%b%s%b\n" "" "$c" "$line" "$RESET"
+        n=$(( n+1 ))
     done
 }
 
 show_security_sequence() {
     clear_screen
-    echo ""
-    echo ""
+    echo ""; echo ""
     write_centered "$SHIELD INITIALIZING SECURITY PROTOCOLS $SHIELD" "$PRIMARY"
     echo ""
-
     show_security_loading_bar "$LOCK Initializing AES-256 Encryption" "$SECURITY_LOAD_STEPS" "$PRIMARY"
     show_security_loading_bar "$LOCK Generating SHA-512 Hashes" "$SECURITY_LOAD_STEPS" "$PRIMARY"
     show_security_loading_bar "$LOCK Activating Firewall Matrix" "$SECURITY_LOAD_STEPS" "$PRIMARY"
@@ -523,143 +458,131 @@ show_security_sequence() {
     sleep 0.1
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
-# SYSTEM STATS
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
+# SYSTEM STATS - FIX: Reliable CPU on Linux
+# ═══════════════════════════════════════════════════
+
+get_cpu_usage_linux() {
+    # Method: Read /proc/stat twice with small delay for accuracy
+    if [[ ! -r /proc/stat ]]; then echo "N/A"; return; fi
+
+    local line1 line2
+    read -r line1 < /proc/stat
+    sleep 0.15
+    read -r line2 < /proc/stat
+
+    local -a s1=($line1) s2=($line2)
+    # s: user nice system idle iowait irq softirq (indices 1-7)
+    local idle1=${s1[4]} idle2=${s2[4]}
+    local total1=0 total2=0
+    for ((i=1; i<=7; i++)); do
+        total1=$(( total1 + ${s1[$i]:-0} ))
+        total2=$(( total2 + ${s2[$i]:-0} ))
+    done
+
+    local dtotal=$(( total2 - total1 ))
+    local didle=$(( idle2 - idle1 ))
+
+    if [[ $dtotal -gt 0 ]]; then
+        echo $(( (dtotal - didle) * 100 / dtotal ))
+    else
+        echo "N/A"
+    fi
+}
 
 get_system_stats() {
-    local cpu_usage="N/A"
-    local ram_usage="N/A"
+    local cpu_usage="N/A" ram_usage="N/A"
 
-    # Get CPU usage
     case "$PLATFORM" in
         macos)
-            # macOS: use top to get CPU idle percentage
-            local cpu_idle=$(top -l 1 -n 0 2>/dev/null | grep "CPU usage" | awk '{print $7}' | sed 's/%//')
-            if [[ -n "$cpu_idle" ]]; then
-                cpu_usage=$((100 - cpu_idle))
+            local idle=$(top -l 1 -n 0 2>/dev/null | grep "CPU usage" | awk '{print $7}' | sed 's/%//')
+            [[ -n "$idle" ]] && cpu_usage=$(( 100 - idle ))
+            if command -v vm_stat &>/dev/null; then
+                local pf=$(vm_stat | awk '/Pages free/{print $3}' | sed 's/\.//')
+                local pa=$(vm_stat | awk '/Pages active/{print $3}' | sed 's/\.//')
+                local pi=$(vm_stat | awk '/Pages inactive/{print $3}' | sed 's/\.//')
+                local pw=$(vm_stat | awk '/Pages wired/{print $4}' | sed 's/\.//')
+                local tot=$(( pf+pa+pi+pw ))
+                [[ $tot -gt 0 ]] && ram_usage=$(( (pa+pw)*100/tot ))
             fi
             ;;
         linux)
-            # Linux: use top or /proc/stat
-            if command -v top &>/dev/null; then
-                local cpu_idle=$(top -bn1 | grep "Cpu(s)" | awk '{print $8}' | sed 's/%id,//' | cut -d'.' -f1)
-                if [[ -n "$cpu_idle" ]]; then
-                    cpu_usage=$((100 - cpu_idle))
-                fi
+            cpu_usage=$(get_cpu_usage_linux)
+            if [[ -r /proc/meminfo ]]; then
+                local mt=$(awk '/MemTotal/{print $2}' /proc/meminfo)
+                local ma=$(awk '/MemAvailable/{print $2}' /proc/meminfo)
+                [[ -n "$mt" && -n "$ma" && $mt -gt 0 ]] && ram_usage=$(( (mt-ma)*100/mt ))
             fi
             ;;
         termux)
-            # Termux: use /proc/stat if available
             if [[ -r /proc/stat ]]; then
-                local cpu_data=($(head -n1 /proc/stat | awk '{print $2, $3, $4, $5}'))
-                local total=$((cpu_data[0] + cpu_data[1] + cpu_data[2] + cpu_data[3]))
-                local idle=${cpu_data[3]}
-                if [[ $total -gt 0 ]]; then
-                    cpu_usage=$(( (total - idle) * 100 / total ))
-                fi
+                local d=($(awk 'NR==1{print $2,$3,$4,$5}' /proc/stat))
+                local tot=$(( d[0]+d[1]+d[2]+d[3] ))
+                [[ $tot -gt 0 ]] && cpu_usage=$(( (tot-d[3])*100/tot ))
             fi
-            ;;
-    esac
-
-    # Get RAM usage
-    case "$PLATFORM" in
-        macos)
-            # macOS: use vm_stat
-            if command -v vm_stat &>/dev/null; then
-                local pages_free=$(vm_stat | grep "Pages free" | awk '{print $3}' | sed 's/\.//')
-                local pages_active=$(vm_stat | grep "Pages active" | awk '{print $3}' | sed 's/\.//')
-                local pages_inactive=$(vm_stat | grep "Pages inactive" | awk '{print $3}' | sed 's/\.//')
-                local pages_wired=$(vm_stat | grep "Pages wired down" | awk '{print $4}' | sed 's/\.//')
-                if [[ -n "$pages_free" ]] && [[ -n "$pages_active" ]]; then
-                    local total_pages=$((pages_free + pages_active + pages_inactive + pages_wired))
-                    local used_pages=$((pages_active + pages_wired))
-                    if [[ $total_pages -gt 0 ]]; then
-                        ram_usage=$((used_pages * 100 / total_pages))
-                    fi
-                fi
-            fi
-            ;;
-        linux|termux)
-            # Linux/Termux: use /proc/meminfo
             if [[ -r /proc/meminfo ]]; then
-                local mem_total=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-                local mem_available=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
-                if [[ -n "$mem_total" ]] && [[ -n "$mem_available" ]] && [[ $mem_total -gt 0 ]]; then
-                    local mem_used=$((mem_total - mem_available))
-                    ram_usage=$((mem_used * 100 / mem_total))
-                fi
+                local mt=$(awk '/MemTotal/{print $2}' /proc/meminfo)
+                local ma=$(awk '/MemAvailable/{print $2}' /proc/meminfo)
+                [[ -n "$mt" && -n "$ma" && $mt -gt 0 ]] && ram_usage=$(( (mt-ma)*100/mt ))
             fi
             ;;
     esac
-
     echo "$cpu_usage $ram_usage"
 }
 
 write_usage_bar() {
-    local indent="$1"
-    local label="$2"
-    local usage="$3"
-    local width="${4:-30}"
+    local indent="$1" label="$2" usage="$3" width="${4:-30}"
+    [[ "$usage" == "N/A" ]] && return
 
-    # Skip if usage is N/A
-    if [[ "$usage" == "N/A" ]]; then
-        return
-    fi
-
-    # Determine color based on usage
     local bar_color="$NEON_GREEN"
-    if [[ $usage -gt 80 ]]; then
-        bar_color="$BLOOD_RED"
-    elif [[ $usage -gt 60 ]]; then
-        bar_color="$ORANGE"
-    fi
+    [[ $usage -gt 80 ]] && bar_color="$BLOOD_RED"
+    [[ $usage -gt 60 && $usage -le 80 ]] && bar_color="$ORANGE"
 
-    # Calculate filled and empty blocks
-    local filled=$((usage * width / 100))
+    local filled=$(( usage*width/100 ))
     [[ $filled -gt $width ]] && filled=$width
     [[ $filled -lt 0 ]] && filled=0
-    local empty=$((width - filled))
+    local empty=$(( width-filled ))
 
-    # Build bar
     local bar=""
-    for ((i=0; i<filled; i++)); do
-        bar+="$BLOCK"
-    done
-    for ((i=0; i<empty; i++)); do
-        bar+="$BLOCK_EMPTY"
-    done
+    for ((i=0; i<filled; i++)); do bar+="$BLOCK"; done
+    for ((i=0; i<empty; i++)); do bar+="$BLOCK_EMPTY"; done
 
-    printf "%s%b%s %b%-8s%b %b%s%b %b%3d%%%b\n" \
+    printf "%s%b%s%b  %-8s%b %b%s%b %b%3d%%%b\n" \
         "$indent" "$PRIMARY" "$VLINE" \
         "$WHITE" "$label" "$RESET" \
         "$bar_color" "$bar" "$RESET" \
         "$WHITE" "$usage" "$RESET"
 }
 
+# ═══════════════════════════════════════════════════
+# DASHBOARD
+# ═══════════════════════════════════════════════════
+
 show_dashboard() {
     clear_screen
     get_terminal_size
 
-    # Get system info
-    local user="$USER"
-    local computer="${HOSTNAME:-$(hostname 2>/dev/null || echo 'unknown')}"
+    local user="${USER:-$(whoami 2>/dev/null || echo 'user')}"
+    local computer
+    computer="${HOSTNAME:-$(hostname 2>/dev/null || echo 'localhost')}"
     local os
     case "$PLATFORM" in
         termux) os="Termux (Android)" ;;
-        macos) os="macOS $(sw_vers -productVersion 2>/dev/null || echo '')" ;;
-        linux) os="$(uname -s) $(uname -r)" ;;
-        *) os="$(uname -s)" ;;
+        macos)  os="macOS $(sw_vers -productVersion 2>/dev/null || echo '')" ;;
+        linux)  os="$(uname -s) $(uname -r 2>/dev/null | cut -d- -f1)" ;;
+        *)      os="$(uname -s 2>/dev/null || echo 'Linux')" ;;
     esac
-    local datetime=$(date '+%Y-%m-%d %H:%M:%S')
+    local datetime; datetime=$(date '+%Y-%m-%d %H:%M:%S')
 
-    # Get uptime
     local uptime_str="N/A"
-    if command -v uptime &> /dev/null; then
-        uptime_str=$(uptime | sed 's/.*up //' | sed 's/,.*//' | xargs)
+    if command -v uptime &>/dev/null; then
+        # FIX: uptime output varies by distro — normalize it
+        local raw; raw=$(uptime 2>/dev/null)
+        if echo "$raw" | grep -q 'up'; then
+            uptime_str=$(echo "$raw" | sed 's/.*up[[:space:]]*//' | sed 's/,[[:space:]]*[0-9]* user.*//' | xargs)
+        fi
     fi
 
-    # Display logo with gradient
     echo ""
     if [[ "$THEME" == "Unknown" ]]; then
         write_gradient_logo "$(get_unknown_logo)"
@@ -668,144 +591,113 @@ show_dashboard() {
     fi
     echo ""
 
-    # Box
     local box_width=65
-    [[ $TERM_WIDTH -lt 69 ]] && box_width=$((TERM_WIDTH - 4))
-    local padding=$(( (TERM_WIDTH - box_width) / 2 ))
+    [[ $TERM_WIDTH -lt 69 ]] && box_width=$(( TERM_WIDTH-4 ))
+    local padding=$(( (TERM_WIDTH-box_width)/2 ))
     [[ $padding -lt 0 ]] && padding=0
-    local indent=$(printf "%${padding}s" "")
-    local hline=$(printf "%$((box_width - 2))s" "" | tr ' ' "$HLINE")
+    local indent; indent=$(printf "%${padding}s" "")
+    local hline; hline=$(printf "%$(( box_width-2 ))s" "" | tr ' ' "$HLINE")
 
     echo "${indent}${PRIMARY}${TOP_LEFT}${hline}${TOP_RIGHT}${RESET}"
 
     local title="$SKULL $TITLE v$SCRIPT_VERSION $SKULL"
-    local title_pad=$((box_width - ${#title} - 4))
-    [[ $title_pad -lt 0 ]] && title_pad=0
+    local tpad=$(( box_width - ${#title} - 4 ))
+    [[ $tpad -lt 0 ]] && tpad=0
     printf "%s%b%s %b%s%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-        "$SECONDARY" "$title" "$title_pad" "" "$PRIMARY" "$VLINE" "$RESET"
-
+        "$SECONDARY" "$title" "$tpad" "" "$PRIMARY" "$VLINE" "$RESET"
     echo "${indent}${PRIMARY}${T_LEFT}${hline}${T_RIGHT}${RESET}"
 
-    # System info (if enabled)
     if [[ "$SHOW_SYSTEM_INFO" == "true" ]]; then
-        printf "%s%b%s%b  Operator: %b%s%b%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-            "$WHITE" "$NEON_GREEN" "$user" "$WHITE" \
-            $((box_width - 12 - ${#user})) "" "$PRIMARY" "$VLINE" "$RESET"
-
-        printf "%s%b%s%b  Host: %b%s%b%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-            "$WHITE" "$GOLD" "$computer" "$WHITE" \
-            $((box_width - 8 - ${#computer})) "" "$PRIMARY" "$VLINE" "$RESET"
-
-        printf "%s%b%s%b  System: %b%s%b%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-            "$WHITE" "$GOLD" "$os" "$WHITE" \
-            $((box_width - 10 - ${#os})) "" "$PRIMARY" "$VLINE" "$RESET"
-
-        printf "%s%b%s%b  Uptime: %b%s%b%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-            "$WHITE" "$NEON_CYAN" "$uptime_str" "$WHITE" \
-            $((box_width - 10 - ${#uptime_str})) "" "$PRIMARY" "$VLINE" "$RESET"
-
-        printf "%s%b%s%b  Time: %b%s%b%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-            "$WHITE" "$NEON_CYAN" "$datetime" "$WHITE" \
-            $((box_width - 8 - ${#datetime})) "" "$PRIMARY" "$VLINE" "$RESET"
-
+        _info_row() {
+            local lbl="$1" val="$2" valcol="$3"
+            local rpad=$(( box_width - ${#lbl} - ${#val} - 5 ))
+            [[ $rpad -lt 0 ]] && rpad=0
+            printf "%s%b%s%b  %s%b%s%b%*s%b%s%b\n" \
+                "$indent" "$PRIMARY" "$VLINE" \
+                "$WHITE" "$lbl" "$valcol" "$val" "$WHITE" \
+                "$rpad" "" "$PRIMARY" "$VLINE" "$RESET"
+        }
+        _info_row "Operator: " "$user"     "$NEON_GREEN"
+        _info_row "Host:     " "$computer" "$GOLD"
+        _info_row "System:   " "$os"       "$GOLD"
+        _info_row "Uptime:   " "$uptime_str" "$NEON_CYAN"
+        _info_row "Time:     " "$datetime" "$NEON_CYAN"
         echo "${indent}${PRIMARY}${T_LEFT}${hline}${T_RIGHT}${RESET}"
 
-        # System stats (CPU and RAM)
-        local stats=($(get_system_stats))
-        local cpu_usage="${stats[0]}"
-        local ram_usage="${stats[1]}"
-
-        # Display CPU and RAM bars if available
-        if [[ "$cpu_usage" != "N/A" ]] || [[ "$ram_usage" != "N/A" ]]; then
-            write_usage_bar "$indent" "$CPU CPU" "$cpu_usage" 30
-            write_usage_bar "$indent" "$RAM RAM" "$ram_usage" 30
+        local stats=($( get_system_stats ))
+        local cpu_u="${stats[0]:-N/A}" ram_u="${stats[1]:-N/A}"
+        if [[ "$cpu_u" != "N/A" || "$ram_u" != "N/A" ]]; then
+            write_usage_bar "$indent" "$CPU CPU" "$cpu_u" 30
+            write_usage_bar "$indent" "$RAM RAM" "$ram_u" 30
             echo "${indent}${PRIMARY}${T_LEFT}${hline}${T_RIGHT}${RESET}"
         fi
     fi
 
-    # Quote
-    local quote_idx=$((RANDOM % ${#QUOTES[@]}))
-    local quote="${QUOTES[$quote_idx]}"
-    local quote_pad=$((box_width - ${#quote} - 4))
-    [[ $quote_pad -lt 0 ]] && quote_pad=0
+    local qi=$(( RANDOM % ${#QUOTES[@]} ))
+    local quote="${QUOTES[$qi]}"
+    local qpad=$(( box_width - ${#quote} - 4 ))
+    [[ $qpad -lt 0 ]] && qpad=0
     printf "%s%b%s %b%s%*s%b%s%b\n" "$indent" "$PRIMARY" "$VLINE" \
-        "$GRAY" "$quote" "$quote_pad" "" "$PRIMARY" "$VLINE" "$RESET"
-
+        "$GRAY" "$quote" "$qpad" "" "$PRIMARY" "$VLINE" "$RESET"
     echo "${indent}${PRIMARY}${BOTTOM_LEFT}${hline}${BOTTOM_RIGHT}${RESET}"
     echo ""
 
-    # Help command
     local help_cmd="phantom-help"
     [[ "$THEME" == "Unknown" ]] && help_cmd="unknown-help"
     echo "${indent}${DARK_GRAY}Type '${GOLD}${help_cmd}${DARK_GRAY}' for commands.${RESET}"
     echo ""
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
-# MAIN STARTUP
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
+# STARTUP
+# ═══════════════════════════════════════════════════
 
 start_phantom_terminal() {
     load_config
     get_theme_colors
 
     if [[ "$ANIMATION_ENABLED" != "true" ]]; then
-        show_dashboard
-        return
+        show_dashboard; return
     fi
 
     hide_cursor
     show_core_ignition
     show_security_sequence
     show_multicolor_matrix "$MATRIX_DURATION"
-
     if [[ "$THEME" == "Unknown" ]]; then
         show_glitch_reveal "$(get_unknown_logo)" "$PRIMARY"
     else
         show_glitch_reveal "$(get_phantom_logo)" "$PRIMARY"
     fi
-
     show_dashboard
     show_cursor
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # COMMANDS
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
-phantom-reload() {
-    start_phantom_terminal
-}
+phantom-reload() { start_phantom_terminal; }
 
 phantom-matrix() {
-    load_config
-    get_theme_colors
-    hide_cursor
-    show_multicolor_matrix 5
-    show_cursor
+    load_config; get_theme_colors
+    hide_cursor; show_multicolor_matrix 5; show_cursor
 }
 
-phantom-dash() {
-    load_config
-    get_theme_colors
-    show_dashboard
-}
+phantom-dash() { load_config; get_theme_colors; show_dashboard; }
 
 phantom-help() {
-    load_config
-    get_theme_colors
-    local prefix="phantom"
-    [[ "$THEME" == "Unknown" ]] && prefix="unknown"
-
+    load_config; get_theme_colors
+    local p="phantom"; [[ "$THEME" == "Unknown" ]] && p="unknown"
     echo ""
     echo "${NEON_CYAN}=== $TITLE v$SCRIPT_VERSION ===${RESET}"
     echo ""
-    echo "  ${GOLD}${prefix}-reload${WHITE}  - Replay animation${RESET}"
-    echo "  ${GOLD}${prefix}-theme${WHITE}   - Switch theme${RESET}"
-    echo "  ${GOLD}${prefix}-config${WHITE}  - Show/edit config${RESET}"
-    echo "  ${GOLD}${prefix}-matrix${WHITE}  - Matrix animation${RESET}"
-    echo "  ${GOLD}${prefix}-dash${WHITE}    - Show dashboard${RESET}"
-    echo "  ${GOLD}${prefix}-update${WHITE}  - Check updates${RESET}"
+    echo "  ${GOLD}${p}-reload${WHITE}   - Replay animation${RESET}"
+    echo "  ${GOLD}${p}-theme${WHITE}    - Switch theme${RESET}"
+    echo "  ${GOLD}${p}-config${WHITE}   - Show/edit config${RESET}"
+    echo "  ${GOLD}${p}-matrix${WHITE}   - Matrix animation${RESET}"
+    echo "  ${GOLD}${p}-dash${WHITE}     - Show dashboard${RESET}"
+    echo "  ${GOLD}${p}-update${WHITE}   - Check updates${RESET}"
     echo ""
 }
 
@@ -817,16 +709,23 @@ phantom-config() {
         echo ""
         echo "${NEON_CYAN}Config: $CONFIG_FILE${RESET}"
         echo ""
-        echo "  ${GOLD}AnimationEnabled${WHITE}: $ANIMATION_ENABLED${RESET}"
-        echo "  ${GOLD}MatrixDuration${WHITE}: $MATRIX_DURATION${RESET}"
-        echo "  ${GOLD}MatrixMode${WHITE}: $MATRIX_MODE${RESET}"
-        echo "  ${GOLD}SecurityLoadSteps${WHITE}: $SECURITY_LOAD_STEPS${RESET}"
-        echo "  ${GOLD}GlitchIntensity${WHITE}: $GLITCH_INTENSITY${RESET}"
-        echo "  ${GOLD}ShowSystemInfo${WHITE}: $SHOW_SYSTEM_INFO${RESET}"
-        echo "  ${GOLD}ShowFullPath${WHITE}: $SHOW_FULL_PATH${RESET}"
-        echo "  ${GOLD}GradientText${WHITE}: $GRADIENT_TEXT${RESET}"
-        echo "  ${GOLD}Theme${WHITE}: $THEME${RESET}"
-        echo "  ${GOLD}AutoCheckUpdates${WHITE}: $AUTO_CHECK_UPDATES${RESET}"
+        for key in AnimationEnabled MatrixDuration MatrixMode SecurityLoadSteps GlitchIntensity ShowSystemInfo ShowFullPath GradientText Theme AutoCheckUpdates; do
+            local val="${!key:-}"
+            # map variable names
+            case "$key" in
+                AnimationEnabled) val="$ANIMATION_ENABLED" ;;
+                MatrixDuration)   val="$MATRIX_DURATION" ;;
+                MatrixMode)       val="$MATRIX_MODE" ;;
+                SecurityLoadSteps) val="$SECURITY_LOAD_STEPS" ;;
+                GlitchIntensity)  val="$GLITCH_INTENSITY" ;;
+                ShowSystemInfo)   val="$SHOW_SYSTEM_INFO" ;;
+                ShowFullPath)     val="$SHOW_FULL_PATH" ;;
+                GradientText)     val="$GRADIENT_TEXT" ;;
+                Theme)            val="$THEME" ;;
+                AutoCheckUpdates) val="$AUTO_CHECK_UPDATES" ;;
+            esac
+            echo "  ${GOLD}$key${WHITE}: $val${RESET}"
+        done
         echo ""
         echo "${DARK_GRAY}Run: phantom-config --edit${RESET}"
         echo ""
@@ -834,124 +733,88 @@ phantom-config() {
 }
 
 phantom-theme() {
-    local new_theme="$1"
-    load_config
-
+    local new_theme="$1"; load_config
     if [[ -z "$new_theme" ]]; then
-        echo ""
-        echo "${NEON_CYAN}Available themes: Phantom, Unknown${RESET}"
+        echo ""; echo "${NEON_CYAN}Available themes: Phantom, Unknown${RESET}"
         echo "${GOLD}Current: $THEME${RESET}"
-        echo "${DARK_GRAY}Usage: phantom-theme Unknown${RESET}"
-        echo ""
-        return
+        echo "${DARK_GRAY}Usage: phantom-theme Unknown${RESET}"; echo ""; return
     fi
-
     case "${new_theme,,}" in
-        unknown)
-            THEME="Unknown"
-            save_config
-            echo "${NEON_GREEN}Theme changed to: Unknown${RESET}"
-            echo "${DARK_GRAY}Run 'phantom-reload' to see changes${RESET}"
-            ;;
-        phantom)
-            THEME="Phantom"
-            save_config
-            echo "${NEON_GREEN}Theme changed to: Phantom${RESET}"
-            echo "${DARK_GRAY}Run 'phantom-reload' to see changes${RESET}"
-            ;;
-        *)
-            echo "${BLOOD_RED}Unknown theme. Available: Phantom, Unknown${RESET}"
-            ;;
+        unknown) THEME="Unknown"; save_config; echo "${NEON_GREEN}Theme: Unknown${RESET}" ;;
+        phantom) THEME="Phantom"; save_config; echo "${NEON_GREEN}Theme: Phantom${RESET}" ;;
+        *) echo "${BLOOD_RED}Unknown theme. Available: Phantom, Unknown${RESET}" ;;
     esac
+    echo "${DARK_GRAY}Run 'phantom-reload' to see changes${RESET}"
 }
 
 phantom-update() {
-    load_config
-    get_cache
-
+    load_config; get_cache
     echo "${NEON_CYAN}Checking for updates...${RESET}"
-
-    if ! command -v curl &> /dev/null; then
-        echo "${BLOOD_RED}curl not found. Please install curl.${RESET}"
-        return 1
+    if ! command -v curl &>/dev/null; then
+        echo "${BLOOD_RED}curl not found.${RESET}"; return 1
     fi
 
-    # Check cache to avoid too frequent API calls
-    local now=$(date +%s)
+    # FIX: date -d is Linux only, date -j is macOS — handle both
+    local now; now=$(date +%s)
     local cache_valid=false
     if [[ -n "$LAST_UPDATE_CHECK" ]]; then
-        local last_check_ts=$(date -d "$LAST_UPDATE_CHECK" +%s 2>/dev/null || date -j -f "%Y-%m-%d %H:%M:%S" "$LAST_UPDATE_CHECK" +%s 2>/dev/null || echo "0")
-        local days_since=$(( (now - last_check_ts) / 86400 ))
-        if [[ $days_since -lt $UPDATE_CHECK_DAYS ]]; then
-            cache_valid=true
+        local lts
+        if [[ "$PLATFORM" == "macos" ]]; then
+            lts=$(date -j -f "%Y-%m-%d %H:%M:%S" "$LAST_UPDATE_CHECK" +%s 2>/dev/null || echo 0)
+        else
+            lts=$(date -d "$LAST_UPDATE_CHECK" +%s 2>/dev/null || echo 0)
         fi
+        local days=$(( (now-lts)/86400 ))
+        [[ $days -lt $UPDATE_CHECK_DAYS ]] && cache_valid=true
     fi
 
-    # Use cached result if valid
-    if [[ "$cache_valid" == "true" ]] && [[ -n "$LATEST_VERSION" ]]; then
-        echo "${DARK_GRAY}Using cached result (checked recently)${RESET}"
-        local latest_version="$LATEST_VERSION"
+    local latest_version
+    if [[ "$cache_valid" == "true" && -n "$LATEST_VERSION" ]]; then
+        echo "${DARK_GRAY}Using cached result${RESET}"
+        latest_version="$LATEST_VERSION"
     else
-        # Query GitHub API
-        local latest_version=$(curl -s "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"v\?\(.*\)"/\1/')
-
+        latest_version=$(curl -s "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" \
+            | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' \
+            | sed 's/.*"v\?\([^"]*\)".*/\1/')
         if [[ -z "$latest_version" ]]; then
-            echo "${BLOOD_RED}Failed to check for updates.${RESET}"
-            return 1
+            echo "${BLOOD_RED}Failed to check updates.${RESET}"; return 1
         fi
-
-        # Save to cache
-        local check_time=$(date '+%Y-%m-%d %H:%M:%S')
-        local is_update_available=false
-        if [[ "$latest_version" > "$SCRIPT_VERSION" ]]; then
-            is_update_available=true
-        fi
-        save_cache "$check_time" "$latest_version" "$is_update_available"
+        local ct; ct=$(date '+%Y-%m-%d %H:%M:%S')
+        local ua=false
+        [[ "$latest_version" > "$SCRIPT_VERSION" ]] && ua=true
+        save_cache "$ct" "$latest_version" "$ua"
     fi
 
     if [[ "$latest_version" > "$SCRIPT_VERSION" ]]; then
         echo "${GOLD}Updating to v$latest_version...${RESET}"
-
-        local script_path="$HOME/.phantom-terminal/PhantomStartup.sh"
-        if ! curl -fsSL "https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/main/PhantomStartup.sh" -o "$script_path"; then
-            echo "${BLOOD_RED}Update failed.${RESET}"
-            return 1
-        fi
-
-        chmod +x "$script_path"
-        echo "${NEON_GREEN}Updated! Restart terminal to apply.${RESET}"
+        local sp="$HOME/.phantom-terminal/PhantomStartup.sh"
+        curl -fsSL "https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/main/PhantomStartup.sh" -o "$sp" \
+            && chmod +x "$sp" \
+            && echo "${NEON_GREEN}Updated! Restart terminal.${RESET}" \
+            || echo "${BLOOD_RED}Update failed.${RESET}"
     else
-        echo "${NEON_GREEN}Already on latest version (v$SCRIPT_VERSION)${RESET}"
+        echo "${NEON_GREEN}Already latest (v$SCRIPT_VERSION)${RESET}"
     fi
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # EASTER EGGS
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
-# Initialize secrets tracking
 declare -a SECRETS_FOUND=()
 SECRETS_FILE="$CONFIG_DIR/.secrets"
-
-# Load discovered secrets
-if [[ -f "$SECRETS_FILE" ]]; then
-    mapfile -t SECRETS_FOUND < "$SECRETS_FILE"
-fi
+[[ -f "$SECRETS_FILE" ]] && mapfile -t SECRETS_FOUND < "$SECRETS_FILE"
 
 save_secret() {
-    local secret="$1"
-    if [[ ! " ${SECRETS_FOUND[@]} " =~ " ${secret} " ]]; then
-        SECRETS_FOUND+=("$secret")
+    local s="$1"
+    if [[ ! " ${SECRETS_FOUND[*]} " =~ " ${s} " ]]; then
+        SECRETS_FOUND+=("$s")
         printf "%s\n" "${SECRETS_FOUND[@]}" > "$SECRETS_FILE"
     fi
 }
 
 phantom-chosen() {
-    load_config
-    get_theme_colors
-    clear_screen
-    echo ""
-    echo ""
+    load_config; get_theme_colors; clear_screen; echo ""; echo ""
     write_centered "╔════════════════════════════════════════╗" "$PRIMARY"
     write_centered "║                                        ║" "$PRIMARY"
     write_centered "║     ${GOLD}✦ THE CHOSEN ONE ✦${PRIMARY}          ║" "$PRIMARY"
@@ -960,169 +823,102 @@ phantom-chosen() {
     echo ""
     write_centered "You have been granted access." "$SECONDARY"
     write_centered "Power. Knowledge. Control." "$ACCENT"
-    echo ""
-    write_centered "The path is now open." "$GRAY"
-    echo ""
-
+    echo ""; write_centered "The path is now open." "$GRAY"; echo ""
     save_secret "chosen"
 }
 
 phantom-2829() {
-    load_config
-    get_theme_colors
-    clear_screen
-    hide_cursor
-
-    echo ""
-    echo ""
-    sleep 0.3
-    write_centered "Initializing..." "$DARK_GRAY"
-    sleep 0.5
-    clear_screen
-    echo ""
-    echo ""
-
+    load_config; get_theme_colors; clear_screen; hide_cursor
+    echo ""; echo ""; sleep 0.3
+    write_centered "Initializing..." "$DARK_GRAY"; sleep 0.5
+    clear_screen; echo ""; echo ""
     write_centered "╔══════════════════════════════════════════════════╗" "$PRIMARY"
     write_centered "║                                                  ║" "$PRIMARY"
     write_centered "║          ${NEON_PURPLE}⚡ CREATOR'S MARK ⚡${PRIMARY}                 ║" "$PRIMARY"
     write_centered "║                                                  ║" "$PRIMARY"
     write_centered "╚══════════════════════════════════════════════════╝" "$PRIMARY"
-    echo ""
-    sleep 0.5
-
-    write_centered "${NEON_CYAN}@unknownlll2829${RESET}" "$WHITE"
-    sleep 0.3
-    write_centered "Master of Terminals, Architect of Code" "$GRAY"
-    sleep 0.3
-    echo ""
-    write_centered "${HOT_PINK}⟨ The Phantom That Never Sleeps ⟩${RESET}" "$HOT_PINK"
-    sleep 0.5
-    echo ""
-
-    write_centered "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" "$DARK_GRAY"
-    echo ""
-    write_centered "${GOLD}\"In the shadows, we code...\"${RESET}" "$GOLD"
-    echo ""
-    write_centered "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" "$DARK_GRAY"
-    sleep 0.5
-    echo ""
-    echo ""
-
-    write_centered "${NEON_GREEN}✓ Secret Unlocked${RESET}" "$NEON_GREEN"
-    echo ""
-
-    show_cursor
-    save_secret "2829"
+    echo ""; sleep 0.5
+    write_centered "${NEON_CYAN}@unknownlll2829${RESET}" "$WHITE"; sleep 0.3
+    write_centered "Master of Terminals, Architect of Code" "$GRAY"; sleep 0.3; echo ""
+    write_centered "${HOT_PINK}⟨ The Phantom That Never Sleeps ⟩${RESET}" "$HOT_PINK"; sleep 0.5; echo ""
+    write_centered "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" "$DARK_GRAY"; echo ""
+    write_centered "${GOLD}\"In the shadows, we code...\"${RESET}" "$GOLD"; echo ""
+    write_centered "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" "$DARK_GRAY"; sleep 0.5; echo ""; echo ""
+    write_centered "${NEON_GREEN}✓ Secret Unlocked${RESET}" "$NEON_GREEN"; echo ""
+    show_cursor; save_secret "2829"
 }
 
 phantom-secrets() {
-    load_config
-    get_theme_colors
-    clear_screen
-
-    echo ""
-    echo ""
+    load_config; get_theme_colors; clear_screen; echo ""; echo ""
     write_centered "╔════════════════════════════════════════╗" "$PRIMARY"
-    write_centered "║                                        ║" "$PRIMARY"
     write_centered "║     ${GOLD}🔍 SECRET HUNTER 🔍${PRIMARY}          ║" "$PRIMARY"
-    write_centered "║                                        ║" "$PRIMARY"
     write_centered "╚════════════════════════════════════════╝" "$PRIMARY"
     echo ""
-
-    local total_secrets=3
-    local found_count=${#SECRETS_FOUND[@]}
-
-    write_centered "Secrets Found: ${NEON_GREEN}$found_count${RESET} / ${GOLD}$total_secrets${RESET}" "$WHITE"
-    echo ""
-    echo ""
-
-    # Display found secrets
-    if [[ $found_count -gt 0 ]]; then
-        write_centered "${NEON_CYAN}━━━ Discovered ━━━${RESET}" "$NEON_CYAN"
-        echo ""
-        for secret in "${SECRETS_FOUND[@]}"; do
-            case "$secret" in
-                chosen) write_centered "${NEON_GREEN}✓${RESET} phantom-chosen - The Chosen One" "$WHITE" ;;
-                2829) write_centered "${NEON_GREEN}✓${RESET} phantom-2829 - Creator's Mark" "$WHITE" ;;
-                secrets) write_centered "${NEON_GREEN}✓${RESET} phantom-secrets - You found me!" "$WHITE" ;;
+    local total=3 found=${#SECRETS_FOUND[@]}
+    write_centered "Secrets Found: ${NEON_GREEN}$found${RESET} / ${GOLD}$total${RESET}" "$WHITE"
+    echo ""; echo ""
+    if [[ $found -gt 0 ]]; then
+        write_centered "${NEON_CYAN}━━━ Discovered ━━━${RESET}" "$NEON_CYAN"; echo ""
+        for s in "${SECRETS_FOUND[@]}"; do
+            case "$s" in
+                chosen)  write_centered "${NEON_GREEN}✓${RESET} phantom-chosen  - The Chosen One" "$WHITE" ;;
+                2829)    write_centered "${NEON_GREEN}✓${RESET} phantom-2829    - Creator's Mark"  "$WHITE" ;;
+                secrets) write_centered "${NEON_GREEN}✓${RESET} phantom-secrets - You found me!"   "$WHITE" ;;
             esac
-        done
-        echo ""
+        done; echo ""
     fi
-
-    # Check if all found
-    if [[ $found_count -eq $total_secrets ]]; then
-        echo ""
+    if [[ $found -eq $total ]]; then
         write_centered "${GOLD}⚡ ACHIEVEMENT UNLOCKED ⚡${RESET}" "$GOLD"
-        write_centered "Master Secret Hunter" "$ACCENT"
-        echo ""
-        write_centered "You've discovered all hidden commands!" "$GRAY"
-        echo ""
+        write_centered "Master Secret Hunter" "$ACCENT"; echo ""
+        write_centered "You've discovered all hidden commands!" "$GRAY"; echo ""
     else
-        write_centered "${DARK_GRAY}Hint: Hidden commands start with 'phantom-'${RESET}" "$DARK_GRAY"
-        echo ""
+        write_centered "${DARK_GRAY}Hint: Hidden commands start with 'phantom-'${RESET}" "$DARK_GRAY"; echo ""
     fi
-
     save_secret "secrets"
 }
 
-# Unknown theme aliases
-unknown-help() { phantom-help; }
-unknown-reload() { phantom-reload; }
-unknown-theme() { phantom-theme "$@"; }
-unknown-matrix() { phantom-matrix; }
-unknown-dash() { phantom-dash; }
-unknown-update() { phantom-update; }
-unknown-config() { phantom-config "$@"; }
+# Unknown aliases
+unknown-help()   { phantom-help;      }
+unknown-reload() { phantom-reload;    }
+unknown-theme()  { phantom-theme "$@";}
+unknown-matrix() { phantom-matrix;    }
+unknown-dash()   { phantom-dash;      }
+unknown-update() { phantom-update;    }
+unknown-config() { phantom-config "$@";}
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # PROMPT
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
 set_phantom_prompt() {
-    load_config
-    get_theme_colors
-
-    # Only set prompt if not already set
+    load_config; get_theme_colors
     if [[ "$PROMPT_COMMAND" != *"phantom_prompt"* ]]; then
         phantom_prompt() {
-            local last_status=$?
-
-            local path_display
+            local last=$?
+            local path_disp
             if [[ "$SHOW_FULL_PATH" == "true" ]]; then
-                path_display="$PWD"
+                path_disp="$PWD"
             else
-                path_display="${PWD##*/}"
-                [[ -z "$path_display" ]] && path_display="$PWD"
+                path_disp="${PWD##*/}"; [[ -z "$path_disp" ]] && path_disp="$PWD"
             fi
-
-            # Git branch
             local git_branch=""
-            if [[ -d .git ]] || git rev-parse --git-dir &>/dev/null; then
-                local branch=$(git branch --show-current 2>/dev/null)
-                [[ -n "$branch" ]] && git_branch=" ${DARK_GRAY}on ${HOT_PINK}$branch"
+            if git rev-parse --git-dir &>/dev/null 2>&1; then
+                local br; br=$(git branch --show-current 2>/dev/null)
+                [[ -n "$br" ]] && git_branch=" ${DARK_GRAY}on ${HOT_PINK}${br}"
             fi
-
-            # Status symbol
-            local status_symbol
-            if [[ $last_status -eq 0 ]]; then
-                status_symbol="${NEON_GREEN}${SUCCESS}"
-            else
-                status_symbol="${BLOOD_RED}${FAILURE}"
-            fi
-
-            PS1="${PRIMARY}${user}${DARK_GRAY}@${NEON_CYAN}${path_display}${git_branch}${RESET}\n${status_symbol} ${PRIMARY}${PROMPT}${RESET} "
+            local status_sym
+            [[ $last -eq 0 ]] && status_sym="${NEON_GREEN}${SUCCESS}" || status_sym="${BLOOD_RED}${FAILURE}"
+            local u="${USER:-user}"
+            PS1="${PRIMARY}${u}${DARK_GRAY}@${NEON_CYAN}${path_disp}${git_branch}${RESET}\n${status_sym} ${PRIMARY}${PROMPT}${RESET} "
         }
-
         PROMPT_COMMAND="phantom_prompt${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
     fi
 }
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 # ENTRY POINT
-# ═══════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════
 
-# Only run on interactive shells
 if [[ $- == *i* ]]; then
     set_phantom_prompt
     start_phantom_terminal
