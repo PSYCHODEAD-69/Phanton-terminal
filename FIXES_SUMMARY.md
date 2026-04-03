@@ -173,7 +173,7 @@ printf "%$(width)s" "text"
 
 ## Conclusion
 
-Phantom Terminal v3.6.0 is now fully ported and functional across all supported platforms. All critical installation errors have been fixed, and the codebase has been validated for cross-platform compatibility.
+Phantom Terminal v3.6.1 is now fully ported and functional across all supported platforms. All critical installation errors have been fixed, and the codebase has been validated for cross-platform compatibility.
 
 ### Summary of Changes
 

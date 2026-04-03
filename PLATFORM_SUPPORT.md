@@ -1,6 +1,6 @@
 # Platform Support Guide
 
-Phantom Terminal v3.6.0+ supports multiple platforms with optimized implementations for each.
+Phantom Terminal v3.6.1+ supports multiple platforms with optimized implementations for each.
 
 ## Supported Platforms
 

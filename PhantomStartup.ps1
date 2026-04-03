@@ -8,14 +8,14 @@
 .NOTES
     Creator: @unknownlll2829 (Telegram)
     GitHub: https://github.com/Unknown-2829/Phanton-terminal
-    Version: 3.6.0
+    Version: 3.6.1
 #>
 
 # ═══════════════════════════════════════════════════════════════════════════
 # VERSION & PATHS
 # ═══════════════════════════════════════════════════════════════════════════
 
-$Script:Version = "3.6.0"
+$Script:Version = "3.6.1"
 $Script:RepoOwner = "Unknown-2829"
 $Script:RepoName = "Phanton-terminal"
 $Script:ConfigDir = "$env:USERPROFILE\.phantom-terminal"

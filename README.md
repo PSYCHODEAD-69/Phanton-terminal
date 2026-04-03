@@ -1,7 +1,7 @@
 # 🔮 Phantom Terminal
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-3.6.0-purple?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-3.6.1-purple?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/PowerShell-5.1%2B-blue?style=for-the-badge&logo=powershell" alt="PowerShell">
   <img src="https://img.shields.io/badge/Bash-4.0%2B-green?style=for-the-badge&logo=gnu-bash" alt="Bash">
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D6?style=for-the-badge&logo=windows" alt="Windows">

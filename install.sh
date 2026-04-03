@@ -109,7 +109,7 @@ detect_shell_profile
 clear
 echo ""
 echo "${PURPLE}  ╔══════════════════════════════════════════════════════╗${R}"
-echo "${PURPLE}  ║${CYAN}        PHANTOM TERMINAL INSTALLER v3.6.0          ${PURPLE}║${R}"
+echo "${PURPLE}  ║${CYAN}        PHANTOM TERMINAL INSTALLER v3.6.1          ${PURPLE}║${R}"
 echo "${PURPLE}  ╚══════════════════════════════════════════════════════╝${R}"
 echo ""
 

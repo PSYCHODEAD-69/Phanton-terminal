@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Phantom Terminal - Fast Installer v3.6.0
+    Phantom Terminal - Fast Installer v3.6.1
 .DESCRIPTION
     Optimized installer with reliable config persistence.
     Run: irm https://raw.githubusercontent.com/Unknown-2829/Phanton-terminal/main/install.ps1 | iex
@@ -37,7 +37,7 @@ if (Test-Path $ConfigFile) {
 Clear-Host
 Write-Host ""
 Write-Host "$Purple  ╔══════════════════════════════════════════════════════╗$R"
-Write-Host "$Purple  ║$Cyan        PHANTOM TERMINAL INSTALLER v3.6.0          $Purple║$R"
+Write-Host "$Purple  ║$Cyan        PHANTOM TERMINAL INSTALLER v3.6.1          $Purple║$R"
 Write-Host "$Purple  ╚══════════════════════════════════════════════════════╝$R"
 Write-Host ""
 

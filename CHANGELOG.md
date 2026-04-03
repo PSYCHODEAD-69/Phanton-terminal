@@ -5,6 +5,20 @@ All notable changes to Phantom Terminal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.1] - 2026-04-03
+
+### Fixed
+- Linux CPU usage detection now uses a `/proc/stat` dual-read sample for more accurate readings in the dashboard.
+- Unicode capability detection now handles more Linux terminal types (including Alacritty, Kitty, and tmux) with safer fallbacks.
+- Config cache parsing now has a fallback path when `jq` is unavailable.
+- Date handling has improved Linux/macOS compatibility (`date -d` vs `date -j`).
+- Platform detection fallback now defaults to Linux behavior instead of unknown mode when detection is ambiguous.
+
+### Changed
+- Unified project version metadata to **3.6.1** across startup scripts, installer banners, and top-level documentation.
+
+---
+
 ## [3.6.0] - 2026-02-12
 
 ### Added

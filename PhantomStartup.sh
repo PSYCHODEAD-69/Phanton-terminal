@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 #
-# Phantom Terminal - Advanced Bash Startup Animation v3.6.0
+# Phantom Terminal - Advanced Bash Startup Animation v3.6.1
 # Cinematic startup animation with multiple themes, effects, and customization.
 # Features: Matrix/Binary rain, gradients, themes.
 #
 # Creator: @unknownlll2829 (Telegram)
 # GitHub: https://github.com/Unknown-2829/Phanton-terminal
-# Version: 3.6.0
+# Version: 3.6.1
 #
 
 # ═══════════════════════════════════════════════════════════════════════════
 # VERSION & PATHS
 # ═══════════════════════════════════════════════════════════════════════════
 
-SCRIPT_VERSION="3.6.0"
+SCRIPT_VERSION="3.6.1"
 REPO_OWNER="Unknown-2829"
 REPO_NAME="Phanton-terminal"
 CONFIG_DIR="$HOME/.phantom-terminal"

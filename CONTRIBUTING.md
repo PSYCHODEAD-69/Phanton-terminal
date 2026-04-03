@@ -6,8 +6,8 @@ Thank you for your interest in contributing! 🎉
 
 1. Check [existing issues](https://github.com/Unknown-2829/Phanton-terminal/issues) first
 2. Create a new issue with:
-   - Windows & PowerShell version
-   - Terminal (Windows Terminal, ConHost, etc.)
+   - Platform + shell version (Windows/PowerShell, Linux/bash, macOS/zsh, or Termux)
+   - Terminal (Windows Terminal, ConHost, Alacritty, Kitty, tmux, etc.)
    - Steps to reproduce
    - Expected vs actual behavior
 
@@ -22,11 +22,12 @@ Open an issue with `[Feature]` in the title and describe:
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Make your changes to `PhantomStartup.ps1`
-4. Test thoroughly
-5. Commit: `git commit -m "Add: my feature"`
-6. Push: `git push origin feature/my-feature`
-7. Open a Pull Request
+3. Make your changes in the relevant startup script(s): `PhantomStartup.ps1` and/or `PhantomStartup.sh`
+4. Update related docs when applicable (`README.md`, `CHANGELOG.md`, version strings)
+5. Test thoroughly on the platform(s) you touched
+6. Commit: `git commit -m "Add: my feature"`
+7. Push: `git push origin feature/my-feature`
+8. Open a Pull Request
 
 ## 📝 Code Style
 
