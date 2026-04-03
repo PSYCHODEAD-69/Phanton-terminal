@@ -5,6 +5,43 @@ All notable changes to Phantom Terminal will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2026-04-03
+
+### Fixed
+
+* **Termux / narrow-terminal box alignment** — root cause was `bash ${#var}` returning
+  *byte count* for UTF-8 strings, not visual character count. Box-drawing chars like
+  `║ ═ ╔` are 3 bytes each in UTF-8, so the old padding formula placed the right border
+  ~2× too far right on Termux. Fix: new `_vlen()` helper strips ANSI codes and counts
+  characters with `wc -m` before every padding calculation in `show_dashboard()`.
+* **`_row()` value truncation** — long OS names or hostnames that exceed box width now
+  truncate cleanly instead of overflowing and breaking alignment.
+* **`write_centered()` centering** — also switched to `_vlen()` so ANSI-colored text
+  centres correctly on all platforms.
+* **Core ignition centering** — `[CORE_INIT]` etc. now visually centred on Termux.
+
+### Changed
+
+* **Matrix rain** — sparser columns and lead/trail char fade now match Windows version.
+  `col_step=2` on Linux/macOS (every other column), `col_step=3` on Termux (mobile perf).
+* **Uptime format** — switched from parsing `uptime` text output (varies by distro) to
+  reading `/proc/uptime` directly. Output format `2d 4h 17m` now matches Windows version.
+* **OS name** — reads `/etc/os-release → PRETTY_NAME` on Linux so dashboard shows
+  `Ubuntu 24.04.4 LTS` / `Arch Linux` etc., matching Windows' `Microsoft Windows 11 Pro`.
+* **Hostname** — strips domain suffix (`host.local` → `host`) for cleaner display.
+* **Glitch reveal** — added `col_step=3` / shorter duration on Termux to avoid flicker.
+* **`SCRIPT_VERSION`** bumped to `3.7.0` in `PhantomStartup.sh`.
+
+### Technical
+
+* New helper `_vlen()` — strips ANSI escapes via `sed`, then counts chars with `wc -m`.
+  Used by `show_dashboard`, `write_centered`, and `show_core_ignition`.
+* Box inner-width arithmetic now always operates on visual character counts, never bytes.
+* `write_usage_bar` bar-width now derived from `inner - 22` (dynamic) so CPU/RAM bars
+  fit correctly on any terminal width including Termux.
+
+---
+
 ## [3.6.1] - 2026-04-03
 
 ### Fixed
