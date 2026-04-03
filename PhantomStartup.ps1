@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Phantom Terminal - Advanced PowerShell Startup Animation v3.6
+    Phantom Terminal - Advanced PowerShell Startup Animation v3.6.1
 .DESCRIPTION
     Cinematic startup animation with multiple themes, effects, and customization.
     Features: Matrix/Binary rain, gradients, themes.
